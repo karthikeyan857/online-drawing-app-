@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head></head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM Artist - Simple Drawing App</title>
+    <script src="file:///C:/Users/KPS%203/artist%20app%20login.html"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .canvas-container {
+            position: relative;
+            margin: 0 auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            display: block;n
+            background-color: white;
+            touch-action: none;
+        }
+        .tool-btn {
+            transition: all 0.2s ease;
+        }
+        .tool-btn:hover {
+            transform: scale(1.05);
+        }
+        .tool-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="auth-section" class="pt-16">
+        <div class="auth-container bg-white">
+            <h1 class="text-2xl font-bold text-center mb-8 text-gray-800">Welcome to CodeDoodle</h1>
+            
+            <div id="login-form">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Login</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="login-email">Email</label>
+                    <input id="login-email" type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="user@example.com">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="login-password">Password</label>
+                    <input id="login-password" type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
+                </div>
+                <button id="login-submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                    Sign In
+                </button>
+                <p class="text-center mt-4 text-gray-600">Don't have an account? <button id="show-register" class="text-blue-500 hover:underline">Register</button></p>
+                <p class="text-xs text-center mt-8 text-gray-400">By continuing, you agree to our Terms of Service</p>
+            </div>
+
+            <div id="register-form" class="hidden">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Create Account</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="register-name">Name</label>
+                    <input id="register-name" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="John Doe">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="register-email">Email</label>
+                    <input id="register-email" type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="user@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="register-password">Password</label>
+                    <input id="register-password" type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="register-confirm">Confirm Password</label>
+                    <input id="register-confirm" type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
+                </div>
+                <button id="register-submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                    Create Account
+                </button>
+                <p class="text-center mt-4 text-gray-600">Already have an account? <button id="show-login" class="text-blue-500 hover:underline">Sign In</button></p>
+                <p class="text-xs text-center mt-8 text-gray-400">By continuing, you agree to our Terms of Service</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-section" class="hidden p-6 max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <img src="https://placehold.co/40x40" alt="CodeDoodle logo - pencil drawing a line with a coding bracket symbol" class="mr-2">
+                <h1 class="text-2xl font-bold text-gray-800">CodeDoodle</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="user-info" class="flex items-center">
+                    <span id="username-display" class="font-medium text-gray-700 mr-2"></span>
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium"></div>
+                </div>
+                <button id="logout-btn" class="text-sm text-gray-500 hover:text-gray-700">Logout</button>
+            </div>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex space-x-2">
+                    <button id="pen-tool" class="tool-btn active p-2 rounded-md bg-blue-100 text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                    <button id="eraser-tool" class="tool-btn p-2 rounded-md bg-gray-100 text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <label class="mr-2 text-sm text-gray-600">Color:</label>
+                        <input id="color-picker" type="color" value="#000000" class="h-8 w-8 rounded-md cursor-pointer">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="mr-2 text-sm text-gray-600">Size:</label>
+                        <input id="brush-size" type="range" min="1" max="50" value="5" class="w-24">
+                        <span id="brush-size-value" class="ml-2 text-sm text-gray-600">5px</span>
+                    </div>
+                    <button id="clear-canvas" class="px-3 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200">
+                        Clear
+                    </button>
+                    <button id="save-canvas" class="px-3 py-1 bg-green-100 text-green-600 rounded-md text-sm hover:bg-green-200">
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="drawing-canvas" width="800" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const authSection = document.getElementById('auth-section');
+        const appSection = document.getElementById('app-section');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
+        const loginSubmit = document.getElementById('login-submit');
+        const registerSubmit = document.getElementById('register-submit');
+        const loginEmail = document.getElementById('login-email');
+        const loginPassword = document.getElementById('login-password');
+        const registerName = document.getElementById('register-name');
+        const registerEmail = document.getElementById('register-email');
+        const registerPassword = document.getElementById('register-password');
+        const registerConfirm = document.getElementById('register-confirm');
+        const logoutBtn = document.getElementById('logout-btn');
+        const usernameDisplay = document.getElementById('username-display');
+
+        // Drawing canvas elements
+        const canvas = document.getElementById('drawing-canvas');
+        const ctx = canvas.getContext('2d');
+        const penTool = document.getElementById('pen-tool');
+        const eraserTool = document.getElementById('eraser-tool');
+        const colorPicker = document.getElementById('color-picker');
+        const brushSize = document.getElementById('brush-size');
+        const brushSizeValue = document.getElementById('brush-size-value');
+        const clearCanvas = document.getElementById('clear-canvas');
+        const saveCanvas = document.getElementById('save-canvas');
+
+        // Drawing state
+        let isDrawing = false;
+        let currentTool = 'pen';
+        let currentColor = colorPicker.value;
+        let currentSize = brushSize.value;
+        
+        // Users data (simulating a database)
+        const users = [];
+
+        // Event Listeners
+        showRegister.addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+        });
+
+        showLogin.addEventListener('click', () => {
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+
+        loginSubmit.addEventListener('click', handleLogin);
+        registerSubmit.addEventListener('click', handleRegister);
+        logoutBtn.addEventListener('click', handleLogout);
+
+        // Drawing tools event listeners
+        penTool.addEventListener('click', () => {
+            currentTool = 'pen';
+            updateActiveTool();
+        });
+
+        eraserTool.addEventListener('click', () => {
+            currentTool = 'eraser';
+            updateActiveTool();
+        });
+
+        colorPicker.addEventListener('input', (e) => {
+            currentColor = e.target.value;
+        });
+
+        brushSize.addEventListener('input', (e) => {
+            currentSize = e.target.value;
+            brushSizeValue.textContent = `${currentSize}px`;
+        });
+
+        clearCanvas.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear the canvas?')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+
+        saveCanvas.addEventListener('click', () => {
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = 'codedoodle-drawing.png';
+            link.href = dataUrl;
+            link.click();
+        });
+
+        // Canvas event listeners
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        // Touch support for mobile devices
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
+        canvas.addEventListener('touchend', handleTouchEnd);
+
+        // Initialize canvas
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        // Functions
+        function updateActiveTool() {
+            const tools = document.querySelectorAll('.tool-btn');
+            tools.forEach(tool => tool.classList.remove('active'));
+            
+            if (currentTool === 'pen') {
+                penTool.classList.add('active');
+            } else {
+                eraserTool.classList.add('active');
+            }
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            ctx.lineWidth = currentSize;
+            ctx.strokeStyle = currentTool === 'pen' ? currentColor : 'white';
+            
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            const mouseEvent = new MouseEvent('mouseup', {});
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function handleRegister() {
+            const name = registerName.value.trim();
+            const email = registerEmail.value.trim();
+            const password = registerPassword.value.trim();
+            const confirmPassword = registerConfirm.value.trim();
+
+            // Simple validation
+            if (!name || !email || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            // Check if user already exists
+            const userExists = users.some(user => user.email === email);
+            if (userExists) {
+                alert('User already exists with this email');
+                return;
+            }
+
+            // Store user (in a real app, this would be a server request)
+            users.push({
+                name,
+                email,
+                password // In a real app, passwords should be hashed
+            });
+
+            alert('Registration successful! Please login.');
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            
+            // Clear form
+            registerName.value = '';
+            registerEmail.value = '';
+            registerPassword.value = '';
+            registerConfirm.value = '';
+        }
+
+        function handleLogin() {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+
+            // Simple validation
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Find user (in a real app, this would be a server request)
+            const user = users.find(user => user.email === email);
+            
+            if (!user || user.password !== password) {
+                alert('Invalid email or password');
+                return;
+            }
+
+            // Successful login
+            usernameDisplay.textContent = user.name;
+            authSection.classList.add('hidden');
+            appSection.classList.remove('hidden');
+            
+            // Clear form
+            loginEmail.value = '';
+            loginPassword.value = '';
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                authSection.classList.remove('hidden');
+                appSection.classList.add('hidden');
+            }
+        }
+
+        // Responsive canvas sizing
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const maxWidth = Math.min(800, container.clientWidth - 40);
+            const ratio = canvas.width / canvas.height;
+            canvas.style.width = `${maxWidth}px`;
+            canvas.style.height = `${maxWidth / ratio}px`;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html>
